@@ -1,0 +1,19 @@
+# --- Sensitive keys and configs ---
+*.pem
+*.ini
+*.env
+
+# --- Prefect local state ---
+prefect_data/
+!prefect_data/.gitkeep   # keep folder structure but not contents
+
+# --- Common temp files ---
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Python cache (if scripts are added) ---
+__pycache__/
+*.pyc
