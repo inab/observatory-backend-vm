@@ -31,7 +31,7 @@ services:
     restart: unless-stopped
 
   observatory-api:
-    image: ghcr.io/inab/observatory-api:v2.6.0
+    image: ghcr.io/inab/observatory-api:v2.7.0
     expose:
       - "3500"
     volumes:
