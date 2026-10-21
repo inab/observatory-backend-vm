@@ -1,22 +1,4 @@
 services:
-  prefect-server:
-    image: prefecthq/prefect:2-latest
-    command: ["prefect", "server", "start", "--host", "0.0.0.0"]  # UI+API on :4200
-    environment:
-      PREFECT_API_URL: http://prefect-server:4200/api  # internal URL for agent/CLI
-    volumes:
-      - ./prefect_data:/root/.prefect
-    restart: unless-stopped
-
-  prefect-agent:
-    image: prefecthq/prefect:2-latest
-    depends_on:
-      - prefect-server
-    environment:
-      PREFECT_API_URL: http://prefect-server:4200/api
-      PREFECT_WORK_QUEUE_NAME: default
-    command: ["prefect", "agent", "start", "-q", "default"]
-    restart: unless-stopped
 
   nginx:
     image: nginx:latest
@@ -24,24 +6,28 @@ services:
       - "8080:80"  # Expose Nginx on host port 8080
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
+    links:
       - observatory-api
+      - licenses-mapping
       - github-metadata-api
-      - prefect-server
     restart: unless-stopped
 
   observatory-api:
-    image: ghcr.io/inab/observatory-api:v2.7.0
-    expose:
-      - "3500"
+    image: ghcr.io/inab/observatory-api:v2.8.1
     volumes:
       - ./observatory-api-variables/:/api-variables
     restart: unless-stopped
 
+  licenses-mapping:
+    image: emartps/license-mapping-api:main
+    volumes:
+      - /home/user/.ssh/:/root/.ssh/
+    env_file:
+      - licenses-mapping-env/.env
+    restart: unless-stopped
+
   github-metadata-api:
-    image: ghcr.io/inab/github-metadata-api:v1.0.4
-    expose:
-      - "8080"
+    image: ghcr.io/inab/github-metadata-api:v1.2.1
     volumes:
       - ./github-metadata-api-variables/:/app/variables
     restart: unless-stopped
